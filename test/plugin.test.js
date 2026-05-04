@@ -53,3 +53,41 @@ test("tool caches identical MCP calls", async () => {
     await rm(cacheDir, { recursive: true, force: true })
   }
 })
+
+test("tool can clear the cache", async () => {
+  const cacheDir = await mkdtemp(join(tmpdir(), "opencode-mcp-cache-clear-test-"))
+  let upstreamCalls = 0
+  const originalFetch = globalThis.fetch
+  globalThis.fetch = async () => {
+    upstreamCalls++
+    return new Response('event: message\ndata: {"result":{"content":[{"type":"text","text":"value"}]}}\n', {
+      status: 200,
+      headers: { "content-type": "text/event-stream" },
+    })
+  }
+
+  try {
+    const plugin = await server({}, {
+      enabled: true,
+      cacheDir,
+      servers: {
+        context7: {
+          enabled: true,
+          url: "https://example.test/mcp",
+          tools: { "query-docs": { enabled: true, ttlMs: 60_000 } },
+        },
+      },
+    })
+    const context = { metadata() {} }
+    const call = { server: "context7", tool: "query-docs", arguments: { libraryId: "/x/y", query: "q" } }
+
+    await plugin.tool.mcp_cache_call.execute(call, context)
+    await plugin.tool.mcp_cache_call.execute({ ...call, clearCache: true }, context)
+    await plugin.tool.mcp_cache_call.execute(call, context)
+
+    assert.equal(upstreamCalls, 2)
+  } finally {
+    globalThis.fetch = originalFetch
+    await rm(cacheDir, { recursive: true, force: true })
+  }
+})

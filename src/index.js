@@ -156,9 +156,7 @@ async function callRemoteMcp(server, toolName, args) {
 }
 
 async function clearCache(config, args) {
-  if (args.server || args.tool) {
-    throw new Error("cache clear currently clears the whole plugin cache; omit server and tool")
-  }
+  void args
   if (existsSync(config.cacheDir)) await rm(config.cacheDir, { recursive: true, force: true })
   return "MCP cache cleared."
 }
