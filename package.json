@@ -1,0 +1,26 @@
+{
+  "name": "opencode-mcp-cache",
+  "version": "0.1.0",
+  "description": "A one-tool OpenCode plugin that calls configured MCP tools through a local TTL cache.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": [
+    "opencode",
+    "plugin",
+    "mcp",
+    "cache"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@opencode-ai/plugin": "^1.14.33"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
